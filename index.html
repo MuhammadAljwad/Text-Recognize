@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>LingoScan — Arabic & English OCR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+:root{--ink:#182238;--muted:#77839a;--line:#e8ecf3;--bg:#f4f6fb;--blue:#5968ef;--teal:#20b9ad;--navy:#111b2d;--white:#fff;--shadow:0 18px 55px #1c2b4b12}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"DM Sans","IBM Plex Sans Arabic",sans-serif}button,select,textarea{font:inherit}button{cursor:pointer}
+header{height:72px;background:var(--navy);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 max(5vw,20px)}
+.brand{display:flex;align-items:center;gap:11px;font-size:19px;font-weight:800;letter-spacing:-.5px}.logo{height:38px;width:38px;border-radius:12px;background:linear-gradient(135deg,#7b87ff,#22c8b7);display:grid;place-items:center;font-size:21px}.brand small{display:block;font-size:9px;letter-spacing:1.7px;color:#9eabc0;margin-top:2px}
+.header-right{display:flex;gap:12px;align-items:center;color:#b9c4d5;font-size:12px}.ready{height:7px;width:7px;background:#42d6a1;border-radius:50%;display:inline-block;margin-right:7px}.lang{border:1px solid #3b4960;color:#fff;background:#1c2940;padding:9px 12px;border-radius:9px}
+.hero{background:radial-gradient(ellipse at 85% 15%,#354b7e,transparent 38%),linear-gradient(115deg,#111b2d,#1a2a49);color:white;padding:54px max(5vw,20px) 82px}.hero-inner{max-width:1120px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:25px}.eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:#9daaff}.hero h1{font-size:clamp(34px,5vw,51px);line-height:1.1;letter-spacing:-1.8px;margin:14px 0}.hero h1 span{background:linear-gradient(90deg,#a1adff,#69e1d5);color:transparent;background-clip:text}.hero p{color:#bdc8d9;max-width:590px;line-height:1.7;font-size:14px;margin:0}.hero-chip{border:1px solid #455777;background:#ffffff0b;padding:17px 20px;border-radius:16px;min-width:155px}.hero-chip b{font-size:25px;display:block}.hero-chip small{color:#b4c0d2;font-size:11px}
+main{max-width:1120px;padding:0 20px 45px;margin:-38px auto 0;position:relative}.app{background:white;border:1px solid #edf0f5;border-radius:20px;box-shadow:var(--shadow);padding:25px}.heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:20px}.heading h2{font-size:19px;margin:0 0 6px}.heading p{font-size:12px;color:var(--muted);margin:0;line-height:1.6}.badge{background:#e9faf7;color:#159b91;border-radius:30px;padding:7px 10px;font-size:10px;font-weight:800;letter-spacing:.5px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}.panel{border:1px solid var(--line);border-radius:15px;padding:17px;min-width:0}.panel-title{font-size:13px;font-weight:800;margin-bottom:13px;display:flex;justify-content:space-between;align-items:center}.hint{font-size:10px;color:var(--muted);font-weight:500}
+.drop{height:280px;border:1.5px dashed #cbd3e2;background:#fafbfe;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;position:relative;overflow:hidden}.drop.drag{border-color:var(--blue);background:#f2f4ff}.drop-content .upload-icon{height:54px;width:54px;border-radius:17px;background:#edf0ff;color:var(--blue);font-size:25px;display:grid;place-items:center;margin:0 auto 13px}.drop strong{font-size:13px}.drop p{font-size:11px;color:var(--muted);line-height:1.6;margin:7px 0 14px}.preview{display:none;max-height:250px;max-width:100%;object-fit:contain;border-radius:8px}.remove{display:none;position:absolute;right:8px;top:8px;border:0;background:#172033;color:#fff;border-radius:8px;padding:7px 10px;font-size:11px}
+.primary,.soft,.plain{border:0;border-radius:9px;padding:11px 15px;font-size:11px;font-weight:800;transition:.2s}.primary{background:var(--blue);color:white;box-shadow:0 7px 17px #5968ef30}.primary:hover{background:#4756dc;transform:translateY(-1px)}.primary:disabled{opacity:.45;cursor:not-allowed;transform:none}.soft{background:#edf0ff;color:var(--blue)}.plain{background:#f2f4f8;color:#5e6a80}
+.options{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.select{border:1px solid var(--line);border-radius:9px;padding:10px 11px;color:#526078;background:white;font-size:11px;outline:none}
+textarea{width:100%;min-height:280px;resize:vertical;border:1px solid var(--line);border-radius:11px;padding:13px;font-size:14px;line-height:1.8;color:var(--ink);outline:none}textarea:focus{border-color:#aab3ff;box-shadow:0 0 0 3px #5968ef12}textarea[dir=rtl]{font-family:"IBM Plex Sans Arabic",sans-serif}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:11px}.action-group{display:flex;gap:7px;flex-wrap:wrap}.progress{display:none;height:5px;background:#edf0f5;border-radius:8px;margin-top:12px;overflow:hidden}.progress span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .2s}.status{font-size:10px;color:var(--muted);min-height:15px;margin-top:9px}.status.error{color:#d34e63}.note{font-size:10px;color:#98a2b3;line-height:1.6;margin-top:17px}.footer{text-align:center;padding:18px;color:#9aa4b4;font-size:10px}
+[dir=rtl]{font-family:"IBM Plex Sans Arabic","DM Sans",sans-serif}
+@media(max-width:740px){header{height:64px}.header-right .state{display:none}.hero{padding-top:38px;padding-bottom:65px}.hero-inner{display:block}.hero-chip{display:none}.hero h1{letter-spacing:-1px}.grid{grid-template-columns:1fr}.app{padding:16px}.drop{height:230px}main{padding-left:12px;padding-right:12px}.badge{display:none}}
+@media(max-width:390px){.brand{font-size:16px}.hero h1{font-size:32px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">✳</div><div>LingoScan<small>ARABIC & ENGLISH OCR</small></div></div>
+  <div class="header-right"><span class="state"><i class="ready"></i>Ready to scan</span><button class="lang" id="toggleUi">عربي / EN</button></div>
+</header>
+<section class="hero">
+ <div class="hero-inner">
+  <div><div class="eyebrow" id="eyebrow">SMART TEXT RECOGNITION</div><h1 id="heroTitle">Turn images into<br><span>editable text.</span></h1><p id="heroDesc">Extract Arabic and English words from photos, screenshots, and scanned documents. Upload an image, choose the language, and copy your recognized text.</p></div>
+  <div class="hero-chip"><b>العربية + EN</b><small id="chipText">Two languages. One simple tool.</small></div>
+ </div>
+</section>
+<main>
+ <section class="app">
+  <div class="heading"><div><h2 id="sectionTitle">Image to text</h2><p id="sectionDesc">Upload an image or take a photo to recognize the words inside it.</p></div><span class="badge">OCR · AI-POWERED</span></div>
+  <div class="grid">
+   <section class="panel">
+    <div class="panel-title"><span id="sourceLabel">1. Choose an image</span><span class="hint" id="formats">PNG · JPG · WEBP</span></div>
+    <div class="drop" id="drop">
+     <div class="drop-content" id="dropContent"><div class="upload-icon">↥</div><strong id="dropTitle">Drop your image here</strong><p id="dropDesc">or choose a file from your device<br>Works with photos, screenshots and documents</p>
+      <button class="primary" id="browse">Browse image</button>
+      <input type="file" id="file" accept="image/*" hidden>
+      <input type="file" id="camera" accept="image/*" capture="environment" hidden>
+      <div class="options" style="justify-content:center"><button class="soft" id="takePhoto">Use camera</button></div>
+     </div>
+     <img class="preview" id="preview" alt="Selected image preview">
+     <button class="remove" id="remove">Remove image ✕</button>
+    </div>
+    <div class="options">
+     <select class="select" id="language" aria-label="Recognition language"><option value="ara+eng">Arabic + English</option><option value="ara">Arabic only</option><option value="eng">English only</option></select>
+     <button class="primary" id="recognize" disabled>Recognize text →</button>
+    </div>
+    <div class="progress" id="progress"><span id="bar"></span></div>
+    <div class="status" id="status" aria-live="polite">Select an image to get started.</div>
+   </section>
+   <section class="panel">
+    <div class="panel-title"><span id="resultLabel">2. Recognized text</span><span class="hint" id="editable">Editable result</span></div>
+    <textarea id="result" placeholder="Your recognized text will appear here..." spellcheck="false"></textarea>
+    <div class="actions"><div class="action-group"><button class="soft" id="copy">Copy text</button><button class="plain" id="download">Download .txt</button></div><button class="plain" id="clear">Clear</button></div>
+    <div class="note" id="privacy">Your image is processed in your browser using the OCR engine. The first scan may take a little longer while language data loads.</div>
+   </section>
+  </div>
+ </section>
+ <div class="footer">LingoScan <strong>· Arabic & English text recognition</strong> · Works on phone, tablet and computer</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let selectedFile=null, uiArabic=false, worker=null, busy=false;
+const copyText={
+ en:{eyebrow:"SMART TEXT RECOGNITION",title:'Turn images into<br><span>editable text.</span>',desc:"Extract Arabic and English words from photos, screenshots, and scanned documents. Upload an image, choose the language, and copy your recognized text.",chip:"Two languages. One simple tool.",section:"Image to text",sectionDesc:"Upload an image or take a photo to recognize the words inside it.",source:"1. Choose an image",drop:"Drop your image here",dropDesc:"or choose a file from your device<br>Works with photos, screenshots and documents",browse:"Browse image",camera:"Use camera",result:"2. Recognized text",editable:"Editable result",placeholder:"Your recognized text will appear here...",recognize:"Recognize text →",copy:"Copy text",download:"Download .txt",clear:"Clear",privacy:"Your image is processed in your browser using the OCR engine. The first scan may take a little longer while language data loads.",initial:"Select an image to get started.",noImage:"Please choose an image first.",loading:"Preparing OCR engine…",working:"Recognizing text…",done:"Recognition complete.",empty:"No text was detected. Try a clearer image.",copied:"Text copied.",removed:"Image removed."},
+ ar:{eyebrow:"التعرّف الذكي على النصوص",title:'حوّل الصور إلى<br><span>نص قابل للتعديل.</span>',desc:"استخرج الكلمات العربية والإنجليزية من الصور ولقطات الشاشة والمستندات. ارفع صورة، اختر اللغة، ثم انسخ النص المستخرج.",chip:"لغتان. أداة واحدة سهلة.",section:"تحويل الصورة إلى نص",sectionDesc:"ارفع صورة أو التقط صورة بالكاميرا للتعرّف على الكلمات الموجودة فيها.",source:"١. اختر صورة",drop:"ضع الصورة هنا",dropDesc:"أو اختر ملفاً من جهازك<br>يدعم الصور ولقطات الشاشة والمستندات",browse:"اختيار صورة",camera:"استخدام الكاميرا",result:"٢. النص المستخرج",editable:"يمكنك تعديل النص",placeholder:"سيظهر النص المستخرج هنا...",recognize:"تعرّف على النص ←",copy:"نسخ النص",download:"تنزيل ملف TXT",clear:"مسح",privacy:"تتم معالجة الصورة داخل متصفحك باستخدام محرك OCR. قد يستغرق الفحص الأول وقتاً أطول لتحميل بيانات اللغة.",initial:"اختر صورة للبدء.",noImage:"يرجى اختيار صورة أولاً.",loading:"جارٍ تجهيز محرك التعرّف…",working:"جارٍ التعرّف على النص…",done:"اكتمل التعرّف على النص.",empty:"لم يتم العثور على نص. جرّب صورة أوضح.",copied:"تم نسخ النص.",removed:"تمت إزالة الصورة."}
+};
+function tr(key){return copyText[uiArabic?'ar':'en'][key]}
+function setStatus(msg,error=false){$('status').textContent=msg;$('status').classList.toggle('error',error)}
+function updateUi(){
+ const t=copyText[uiArabic?'ar':'en'];document.documentElement.lang=uiArabic?'ar':'en';document.documentElement.dir=uiArabic?'rtl':'ltr';
+ $('eyebrow').textContent=t.eyebrow;$('heroTitle').innerHTML=t.title;$('heroDesc').textContent=t.desc;$('chipText').textContent=t.chip;
+ $('sectionTitle').textContent=t.section;$('sectionDesc').textContent=t.sectionDesc;$('sourceLabel').textContent=t.source;
+ $('dropTitle').textContent=t.drop;$('dropDesc').innerHTML=t.dropDesc;$('browse').textContent=t.browse;$('takePhoto').textContent=t.camera;
+ $('resultLabel').textContent=t.result;$('editable').textContent=t.editable;$('result').placeholder=t.placeholder;
+ $('recognize').textContent=t.recognize;$('copy').textContent=t.copy;$('download').textContent=t.download;$('clear').textContent=t.clear;$('privacy').textContent=t.privacy;
+ $('toggleUi').textContent=uiArabic?'English':'عربي / EN';
+}
+$('toggleUi').onclick=()=>{uiArabic=!uiArabic;updateUi()};
+function choose(file){if(!file)return;if(!file.type.startsWith('image/')){setStatus('Please select an image file.',true);return}selectedFile=file;$('preview').src=URL.createObjectURL(file);$('preview').style.display='block';$('dropContent').style.display='none';$('remove').style.display='block';$('recognize').disabled=false;setStatus(file.name)}
+$('browse').onclick=()=>$('file').click();$('takePhoto').onclick=()=>$('camera').click();
+$('file').onchange=e=>choose(e.target.files[0]);$('camera').onchange=e=>choose(e.target.files[0]);
+$('remove').onclick=()=>{selectedFile=null;$('preview').removeAttribute('src');$('preview').style.display='none';$('dropContent').style.display='block';$('remove').style.display='none';$('recognize').disabled=true;$('file').value='';$('camera').value='';setStatus(tr('removed'))};
+const drop=$('drop');['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));
+drop.addEventListener('drop',e=>choose(e.dataTransfer.files[0]));
+$('recognize').onclick=async()=>{
+ if(!selectedFile){setStatus(tr('noImage'),true);return}if(busy)return;
+ if(!window.Tesseract){setStatus('OCR library could not load. Check your internet connection and refresh.',true);return}
+ busy=true;$('recognize').disabled=true;$('progress').style.display='block';$('bar').style.width='3%';setStatus(tr('loading'));
+ try{
+  const langs=$('language').value;
+  if(worker){await worker.terminate();worker=null}
+  worker=await Tesseract.createWorker(langs,1,{logger:m=>{
+   if(m.status==='loading tesseract core')$('bar').style.width='12%';
+   if(m.status==='loading language traineddata')$('bar').style.width='30%';
+   if(m.status==='initializing api')$('bar').style.width='55%';
+   if(m.status==='recognizing text'){$('bar').style.width=Math.max(58,Math.round(58+(m.progress||0)*40))+'%';setStatus(tr('working')+' '+Math.round((m.progress||0)*100)+'%')}
+  }});
+  const result=await worker.recognize(selectedFile);const text=result.data.text.trim();$('result').value=text;
+  $('result').dir=/[\u0600-\u06FF]/.test(text)?'rtl':'auto';$('bar').style.width='100%';
+  setStatus(text?tr('done'):tr('empty'),!text);
+ }catch(err){console.error(err);setStatus('Recognition failed. Try another image or check your internet connection.',true)}
+ finally{busy=false;$('recognize').disabled=!selectedFile;setTimeout(()=>$('progress').style.display='none',1200)}
+};
+$('copy').onclick=async()=>{if(!$('result').value)return;try{await navigator.clipboard.writeText($('result').value);setStatus(tr('copied'))}catch(e){$('result').select();document.execCommand('copy');setStatus(tr('copied'))}};
+$('download').onclick=()=>{const text=$('result').value;if(!text)return;const blob=new Blob([text],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='recognized-text.txt';a.click();URL.revokeObjectURL(a.href)};
+$('clear').onclick=()=>{$('result').value='';$('result').dir='auto';setStatus(tr('initial'))};
+updateUi();
+</script>
+</body>
+</html>
